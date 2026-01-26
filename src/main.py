@@ -9,7 +9,7 @@ TTS models:
 Transcribe models:
     wget https://huggingface.co/ivrit-ai/whisper-large-v3-turbo-ggml/resolve/main/ggml-model.bin
 
-    ollama pull qwen3:4b
+    ollama pull gemma3:4b
     uv run src/main.py
 """
 

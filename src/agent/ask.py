@@ -2,7 +2,7 @@ import ollama
 
 from agent.prompt import SYSTEM_PROMPT
 from agent.tools import TOOLS, TOOL_FUNCTIONS
-
+from config import MODEL, ENABLE_TOOLS
 
 def ask(text):
     messages = [
@@ -10,7 +10,7 @@ def ask(text):
         {"role": "user", "content": text},
     ]
 
-    response = ollama.chat(model="qwen3:4b", messages=messages, tools=TOOLS)
+    response = ollama.chat(model=MODEL, messages=messages, tools=TOOLS if ENABLE_TOOLS else None)
 
     if response["message"].get("tool_calls"):
         messages.append(response["message"])
@@ -20,6 +20,6 @@ def ask(text):
             result = TOOL_FUNCTIONS[name](**args)
             messages.append({"role": "tool", "content": str(result)})
 
-        response = ollama.chat(model="qwen3:4b", messages=messages, think='low')
+        response = ollama.chat(model=MODEL, messages=messages, think='low')
 
     return response["message"]["content"].strip()
