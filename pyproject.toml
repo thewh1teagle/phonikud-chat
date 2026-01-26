@@ -1,0 +1,18 @@
+[project]
+name = "phonikud-chat"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "ollama>=0.6.1",
+    "phonikud>=0.4.1",
+    "phonikud-onnx>=1.0.6",
+    "pywhispercpp>=1.4.1",
+    "sounddevice>=0.5.5",
+    "soundfile>=0.13.1",
+    "style-onnx",
+]
+
+[tool.uv.sources]
+style-onnx = { git = "https://github.com/thewh1teagle/style-onnx" }
