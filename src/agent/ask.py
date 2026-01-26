@@ -4,22 +4,35 @@ from agent.prompt import SYSTEM_PROMPT
 from agent.tools import TOOLS, TOOL_FUNCTIONS
 from config import MODEL, ENABLE_TOOLS
 
-def ask(text):
+MAX_TOOL_ROUNDS = 3
+
+
+def ask(text, exclude_tools=None, system_prompt=None):
     messages = [
-        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "system", "content": system_prompt or SYSTEM_PROMPT},
         {"role": "user", "content": text},
     ]
 
-    response = ollama.chat(model=MODEL, messages=messages, tools=TOOLS if ENABLE_TOOLS else None)
+    if not ENABLE_TOOLS:
+        tools = None
+    elif exclude_tools:
+        tools = [t for t in TOOLS if t["function"]["name"] not in exclude_tools]
+    else:
+        tools = TOOLS
 
-    if response["message"].get("tool_calls"):
+    for _ in range(MAX_TOOL_ROUNDS):
+        response = ollama.chat(model=MODEL, messages=messages, tools=tools)
+
+        if not response["message"].get("tool_calls"):
+            break
+
         messages.append(response["message"])
         for tool_call in response["message"]["tool_calls"]:
             name = tool_call["function"]["name"]
             args = tool_call["function"].get("arguments", {})
+            print(f"[tool] {name}({args})")
             result = TOOL_FUNCTIONS[name](**args)
+            print(f"[tool] {name} -> {result}")
             messages.append({"role": "tool", "content": str(result)})
-
-        response = ollama.chat(model=MODEL, messages=messages)
 
     return response["message"]["content"].strip()

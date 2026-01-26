@@ -14,5 +14,5 @@ SCHEMA = {
 }
 
 
-def execute():
+def execute(**_):
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")

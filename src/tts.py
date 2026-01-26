@@ -4,7 +4,8 @@ from misaki import en, espeak
 _kokoro = None
 _g2p = None
 
-VOICE = "af_heart"
+DEFAULT_VOICE = "af_heart"
+_voice_override = None
 
 
 def _init():
@@ -15,8 +16,16 @@ def _init():
         _g2p = en.G2P(trf=False, british=False, fallback=fallback)
 
 
+def set_voice(voice):
+    global _voice_override
+    _voice_override = voice
+
+
 def create_audio(text, speed=1.0):
+    global _voice_override
     _init()
+    voice = _voice_override or DEFAULT_VOICE
+    _voice_override = None
     phonemes, _ = _g2p(text)
-    samples, sample_rate = _kokoro.create(phonemes, VOICE, is_phonemes=True, speed=speed)
+    samples, sample_rate = _kokoro.create(phonemes, voice, is_phonemes=True, speed=speed)
     return samples, sample_rate
