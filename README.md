@@ -9,7 +9,7 @@ Fully offline Hebrew voice assistant.
 - Hold-to-talk interface with live recording animation
 - Hebrew speech-to-text via Whisper
 - Hebrew text-to-speech via StyleTTS2 + Phonikud
-- LLM responses via Ollama (gemma3:4b)
+- LLM responses via Ollama (qwen3:4b) with tool calling
 
 ## Prerequisites
 
