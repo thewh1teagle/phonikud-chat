@@ -6,7 +6,7 @@ _model = None
 def _get_model():
     global _model
     if _model is None:
-        _model = Model("ggml-model.bin")
+        _model = Model("ggml-model.bin", redirect_whispercpp_logs_to=None)
     return _model
 
 
