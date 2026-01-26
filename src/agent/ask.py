@@ -9,6 +9,6 @@ def ask(text):
         messages=[
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": text},
-        ],
+        ]
     )
     return response["message"]["content"].strip()
