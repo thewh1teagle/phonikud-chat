@@ -1,13 +1,12 @@
 """
-Hebrew Voice Assistant CLI
+Voice Assistant CLI
 
 TTS models:
-    wget https://github.com/thewh1teagle/style-onnx/releases/download/model-files-v1.0/636_female_style.npy
-    wget https://github.com/thewh1teagle/style-onnx/releases/download/model-files-v1.0/libritts_hebrew.onnx
-    wget https://huggingface.co/thewh1teagle/phonikud-onnx/resolve/main/phonikud-1.0.int8.onnx
+    wget https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/kokoro-v1.0.onnx
+    wget https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/voices-v1.0.bin
 
 Transcribe models:
-    wget https://huggingface.co/ivrit-ai/whisper-large-v3-turbo-ggml/resolve/main/ggml-model.bin
+    wget https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo-q8_0.bin
 
     ollama pull gemma3:4b
     uv run src/main.py
@@ -27,7 +26,7 @@ from agent.ask import ask
 
 BANNER = """
 ========================================
-  Hebrew Voice Assistant
+  Voice Assistant
 ========================================
 
 Hold [R] to record | [Q] to quit

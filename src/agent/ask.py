@@ -20,6 +20,6 @@ def ask(text):
             result = TOOL_FUNCTIONS[name](**args)
             messages.append({"role": "tool", "content": str(result)})
 
-        response = ollama.chat(model=MODEL, messages=messages, think='low')
+        response = ollama.chat(model=MODEL, messages=messages)
 
     return response["message"]["content"].strip()

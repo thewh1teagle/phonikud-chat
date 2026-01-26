@@ -1,22 +1,22 @@
-from style_onnx import StyleTTS2
-from phonikud_onnx import Phonikud
-from phonikud import phonemize
+from kokoro_onnx import Kokoro
+from misaki import en, espeak
 
-model_path = "libritts_hebrew.onnx"
-nikud_model_path = 'phonikud-1.0.int8.onnx'
-styles_path = "636_female_style.npy"
-audio_path = "audio.wav"
+_kokoro = None
+_g2p = None
 
-# Phonemizer setup
-phonikud_model = Phonikud(nikud_model_path)
+VOICE = "af_heart"
 
 
-tts = StyleTTS2(model_path, styles_path)
+def _init():
+    global _kokoro, _g2p
+    if _kokoro is None:
+        _kokoro = Kokoro("kokoro-v1.0.onnx", "voices-v1.0.bin")
+        fallback = espeak.EspeakFallback(british=False)
+        _g2p = en.G2P(trf=False, british=False, fallback=fallback)
 
 
-def create_audio(text, speed=1.32):
-    vocalized = phonikud_model.add_diacritics(text)
-    phonemes = phonemize(vocalized)
-
-    samples, sr = tts.create(phonemes, speed=speed)
-    return samples, sr
+def create_audio(text, speed=1.0):
+    _init()
+    phonemes, _ = _g2p(text)
+    samples, sample_rate = _kokoro.create(phonemes, VOICE, is_phonemes=True, speed=speed)
+    return samples, sample_rate
