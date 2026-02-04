@@ -16,3 +16,6 @@ audio.wav
 *.onnx
 *.npy
 *.bin
+sonara-linux-arm64
+*.wav
+sonara

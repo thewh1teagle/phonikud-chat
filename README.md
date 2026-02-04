@@ -1,13 +1,12 @@
 # Phonikud Chat
 
-Fully offline Hebrew voice assistant.
+Hebrew voice assistant with local Sonara STT + local TTS + Ollama.
 
 ## Features
 
-- Fully local - no internet required after setup
 - Real-time voice conversation like ChatGPT voice mode
-- Hold-to-talk interface with live recording animation
-- Hebrew speech-to-text via Whisper
+- Hold-to-talk interface
+- Hebrew speech-to-text via Sonara (OpenAI-compatible API)
 - Hebrew text-to-speech via StyleTTS2 + Phonikud
 - LLM responses via Ollama with tool calling
 
@@ -25,7 +24,22 @@ cd phonikud-chat
 
 See [src/main.py](src/main.py) for model download links.
 
+## Sonara STT setup
+
+In one terminal:
+
+```bash
+wget https://github.com/thewh1teagle/sonara/releases/download/v0.1.0/sonara-linux-arm64 -O sonara
+chmod +x sonara
+./sonara pull "https://huggingface.co/ivrit-ai/whisper-large-v3-turbo-ggml/resolve/main/ggml-model.bin?download=true"
+./sonara serve ./ggml-model.bin
+```
+
+The app uses Sonara through the OpenAI client at `http://localhost:11531/v1`.
+
 ## Usage
+
+In a second terminal:
 
 ```bash
 uv run src/main.py

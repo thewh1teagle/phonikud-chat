@@ -3,7 +3,9 @@ import select
 import termios
 import threading
 import time
+import tempfile
 import tty
+import os
 
 import numpy as np
 import sounddevice as sd
@@ -11,6 +13,49 @@ import soundfile as sf
 
 SAMPLE_RATE = 16000
 HOLD_TIMEOUT = 0.5
+
+
+def _pick_input_device():
+    env_device = os.getenv("AUDIO_INPUT_DEVICE", "").strip()
+    if env_device.isdigit():
+        return int(env_device)
+
+    default_input = sd.default.device[0]
+    return default_input if default_input is not None and default_input >= 0 else None
+
+
+def _open_input_stream(device, callback):
+    env_rate = os.getenv("AUDIO_SAMPLE_RATE")
+    dev = sd.query_devices(device, "input")
+    candidates = []
+    if env_rate and env_rate.isdigit():
+        candidates.append(int(env_rate))
+    if dev.get("default_samplerate"):
+        candidates.append(int(round(dev["default_samplerate"])))
+    candidates.extend([SAMPLE_RATE, 48000, 44100])
+
+    seen = set()
+    unique_rates = []
+    for rate in candidates:
+        if rate > 0 and rate not in seen:
+            seen.add(rate)
+            unique_rates.append(rate)
+
+    last_error = None
+    for rate in unique_rates:
+        try:
+            stream = sd.InputStream(
+                samplerate=rate,
+                channels=1,
+                dtype="float32",
+                callback=callback,
+                device=device,
+            )
+            return stream, rate
+        except Exception as err:
+            last_error = err
+
+    raise last_error
 
 
 def _record_while_held(fd):
@@ -30,9 +75,8 @@ def _record_while_held(fd):
             i += 1
             time.sleep(0.3)
 
-    stream = sd.InputStream(
-        samplerate=SAMPLE_RATE, channels=1, dtype="float32", callback=callback
-    )
+    device = _pick_input_device()
+    stream, sample_rate = _open_input_stream(device, callback)
     stream.start()
     threading.Thread(target=animate, daemon=True).start()
 
@@ -50,7 +94,7 @@ def _record_while_held(fd):
     sys.stdout.write("\r" + " " * 40 + "\r")
     sys.stdout.flush()
 
-    return audio_frames
+    return audio_frames, sample_rate
 
 
 def wait_for_key():
@@ -73,7 +117,7 @@ def record():
     old = termios.tcgetattr(fd)
     try:
         tty.setraw(fd)
-        frames = _record_while_held(fd)
+        frames, sample_rate = _record_while_held(fd)
     finally:
         termios.tcsetattr(fd, termios.TCSADRAIN, old)
 
@@ -81,6 +125,8 @@ def record():
         return None
 
     audio = np.concatenate(frames, axis=0)
-    path = "audio.wav"
-    sf.write(path, audio, SAMPLE_RATE)
+
+    with tempfile.NamedTemporaryFile(suffix=".wav", prefix="phonikud_", delete=False) as tmp:
+        path = tmp.name
+    sf.write(path, audio, sample_rate)
     return path
